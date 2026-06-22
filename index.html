@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planificación de Playas - Llanes</title>
+    <style>
+        :root {
+            --primary: #1a5f7a;
+            --primary-light: #57c5b6;
+            --secondary: #002b5b;
+            --accent: #f9d949;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --text-muted: #666666;
+            --monday-color: #e3f2fd;
+            --monday-border: #2196f3;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .alert-today {
+            background-color: var(--monday-color);
+            border-left: 5px solid var(--monday-border);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .alert-today h2 {
+            color: var(--secondary);
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .today-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .today-card {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #bbdefb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .today-card .name {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .today-card .hours {
+            background-color: var(--monday-border);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        section h2 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+            border-bottom: 3px solid var(--primary-light);
+            padding-bottom: 5px;
+            display: inline-block;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        th.highlight-day, td.highlight-day {
+            background-color: rgba(33, 150, 243, 0.1);
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .hours-cell {
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .hours-cell.active {
+            color: var(--primary);
+            background-color: rgba(87, 197, 182, 0.1);
+        }
+
+        .empty-cell {
+            color: #ccc;
+            text-align: center;
+        }
+
+        .beaches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .beach-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+        }
+
+        .beach-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .beach-image {
+            height: 200px;
+            width: 100%;
+            object-fit: cover;
+            background-color: #ddd;
+        }
+
+        .beach-info {
+            padding: 20px;
+        }
+
+        .beach-info h3 {
+            color: var(--secondary);
+            margin-bottom: 5px;
+            font-size: 1.3rem;
+        }
+
+        .beach-info .location {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+        }
+
+        .week-schedule {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .day-badge {
+            padding: 4px;
+            border-radius: 4px;
+            text-align: center;
+            background-color: #f0f0f0;
+            color: #999;
+        }
+
+        .day-badge.active {
+            background-color: var(--primary-light);
+            color: white;
+            font-weight: bold;
+        }
+
+        .day-badge.active.monday {
+            background-color: var(--monday-border);
+        }
+
+        @media (max-width: 768px) {
+            .week-schedule {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            th, td {
+                padding: 10px 8px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Planificación Operativa de Playas</h1>
+        <p>Concejo de Llanes | Control de Turnos y Limpieza</p>
+    </header>
+
+    <div class="container">
+        
+        <div class="alert-today">
+            <h2>📅 Tareas Asignadas para Hoy: Lunes</h2>
+            <div class="today-grid">
+                <div class="today-card">
+                    <span class="name">Playa de Torimbia</span>
+                    <span class="hours">2.00 h</span>
+                </div>
+                <div class="today-card">
+                    <span class="name">Playa de Niembro</span>
+                    <span class="hours">1.25 h</span>
+                </div>
+            </div>
+        </div>
+
+        <section>
+            <h2>Cuadrante Semanal Completo</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Playa</th>
+                            <th class="highlight-day">Lunes (Hoy)</th>
+                            <th>Martes</th>
+                            <th>Miércoles</th>
+                            <th>Jueves</th>
+                            <th>Viernes</th>
+                            <th>Sábado</th>
+                            <th>Domingo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>TORIMBIA</strong></td>
+                            <td class="hours-cell active highlight-day">2.00</td>
+                            <td class="empty-cell">-</td>
+                            <td class="empty-cell">-</td>
+                            <td class="hours-cell active">2.00</td>
+                            <td class="empty-cell">-</td>
+                            <td class="empty-cell">-</td>
+                            <td class="empty-cell">-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>NIEMBRO</strong></td>
+                            <td class="hours-cell active highlight-day">1.25</td>
+                            <td class="empty-cell">-</td>
+                            <td class="hours-cell active">1.25</td>
+                            <td class="empty-cell">-</td>
+                            <td class="hours-cell active">1.25</td>
+                            <td class="empty-cell">-</td>
+                            <td class="empty-cell">-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>BARRO</strong></td>
+                            <td class="empty-cell highlight-day">-</td>
+                            <td class="hours-cell active">1.00</td>
+                            <td class="empty-cell">-</td>
+                            <td class="empty-cell">-</td>
+                            <td class="hours-cell active">1.00</td>
+                            <td class="empty-cell">-</td>
+                            <td class="empty-cell">-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>EL BORIZO</strong></td>
+                            <td class="empty-cell highlight-day">-</td>
+                            <td class="hours-cell active">0.75</td>
+                            <td class="empty-cell">-</td>
+                            <td class="empty-cell">-</td>
+                            <td class="hours-cell active">0.75</td>
+                            <td class="empty-cell">-</td>
+                            <td class="empty-cell">-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>PALOMBINA</strong></td>
+                            <td class="empty-cell highlight-day">-</td>
+                            <td class="hours-cell active">0.50</td>
+                            <td class="empty-cell">-</td>
+                            <td class="empty-cell">-</td>
+                            <td class="hours-cell active">0.50</td>
+                            <td class="empty-cell">-</td>
+                            <td class="empty-cell">-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>LAS CÁMARAS</strong></td>
+                            <td class="empty-cell highlight-day">-</td>
+                            <td class="hours-cell active">0.25</td>
+                            <td class="empty-cell">-</td>
+                            <td class="empty-cell">-</td>
+                            <td class="hours-cell active">0.25</td>
+                            <td class="empty-cell">-</td>
+                            <td class="empty-cell">-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>POO</strong></td>
+                            <td class="empty-cell highlight-day">-</td>
+                            <td class="hours-cell active">1.25</td>
+                            <td class="hours-cell active">1.25</td>
+                            <td class="empty-cell">-</td>
+                            <td class="hours-cell active">1.25</td>
+                            <td class="empty-cell">-</td>
+                            <td class="empty-cell">-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TORO</strong></td>
+                            <td class="empty-cell highlight-day">-</td>
+                            <td class="hours-cell active">0.50</td>
+                            <td class="empty-cell">-</td>
+                            <td class="empty-cell">-</td>
+                            <td class="hours-cell active">0.50</td>
+                            <td class="empty-cell">-</td>
+                            <td class="empty-cell">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section>
+            <h2>Fichas de las Playas y Planificación Individual</h2>
+            <div class="beaches-grid">
+                
+                <div class="beach-card">
+                    <img src="https://imgs.search.brave.com/BCighcxHZwK2cpXOLCDeeDHm8VKl12DqrQMKDpIksGs/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/YmFyY2Vsby5jb20v/Z3VpYS10dXJpc21v/L3dwLWNvbnRlbnQv/dXBsb2Fkcy8yMDIx/LzExL2FzdHVyaWFz/LXBsYXlhLXRvcmlt/YmlhLTg4OC0xLmpw/Zw" alt="Playa de Torimbia" class="beach-image">
+                    <div class="beach-info">
+                        <h3>Torimbia</h3>
+                        <p class="location">Llanes, Asturias</p>
+                        <div class="week-schedule">
+                            <div class="day-badge active monday">Lu: 2.0</div>
+                            <div class="day-badge">Ma</div>
+                            <div class="day-badge">Mi</div>
+                            <div class="day-badge active">Ju: 2.0</div>
+                            <div class="day-badge">Vi</div>
+                            <div class="day-badge">Sá</div>
+                            <div class="day-badge">Do</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="beach-card">
+                    <img src="https://imgs.search.brave.com/oLxCNmwTcZ03TTXmP61KcyXcp7WcsfcgZz5kkhnFYfA/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/dHVyaXNtb2FzdHVy/aWFzLmVzL28vYWRh/cHRpdmUtbWVkaWEv/aW1hZ2UvMTM2MTY3/NjMvMi8xMTU4OWFl/Mi1iZGJiLTUyYTkt/NDU5ZS0zNjI2ZDg5/ZDcwMjE_dD0xNzUy/ODI5MzMwODk0" alt="Playa de Niembro" class="beach-image">
+                    <div class="beach-info">
+                        <h3>Niembro</h3>
+                        <p class="location">Llanes, Asturias</p>
+                        <div class="week-schedule">
+                            <div class="day-badge active monday">Lu: 1.25</div>
+                            <div class="day-badge">Ma</div>
+                            <div class="day-badge active">Mi: 1.25</div>
+                            <div class="day-badge">Ju</div>
+                            <div class="day-badge active">Vi: 1.25</div>
+                            <div class="day-badge">Sá</div>
+                            <div class="day-badge">Do</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="beach-card">
+                    <img src="https://imgs.search.brave.com/Nu5VdS-YslEnyiNFnhptPzNh_LmFh8nmeWGVBYO2WsQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zMS5w/cGxsc3RhdGljcy5j/b20vZWxjb21lcmNp/by93d3cvcHJlMjAx/Ny9tdWx0aW1lZGlh/L25vdGljaWFzLzIw/MTYwMi8yNC9tZWRp/YS9jb3J0YWRhcy9s/bGFuZXMtYmFycm8t/LTU3NXgzMjMuanBn" alt="Playa de Barro" class="beach-image">
+                    <div class="beach-info">
+                        <h3>Barro</h3>
+                        <p class="location">Llanes, Asturias</p>
+                        <div class="week-schedule">
+                            <div class="day-badge">Lu</div>
+                            <div class="day-badge active">Ma: 1.0</div>
+                            <div class="day-badge">Mi</div>
+                            <div class="day-badge">Ju</div>
+                            <div class="day-badge active">Vi: 1.0</div>
+                            <div class="day-badge">Sá</div>
+                            <div class="day-badge">Do</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="beach-card">
+                    <img src="https://imgs.search.brave.com/7rIlYUCg24xwPf-Vwj7BHJsnqN8hJGux6KI5d-uFFI4/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/dHVyaXNtb2FzdHVy/aWFzLmVzL28vYWRh/cHRpdmUtbWVkaWEv/aW1hZ2UvNzEyNTkv/Mi82MDJlZmNhZC1i/MWJlLTgzMDEtNWQ4/ZS1jM2JmYTFhOGRi/OGM_dD0xNjc0MTcx/MzMwNDI3" alt="Playa de El Borizo" class="beach-image">
+                    <div class="beach-info">
+                        <h3>Borizo</h3>
+                        <p class="location">Llanes, Asturias</p>
+                        <div class="week-schedule">
+                            <div class="day-badge">Lu</div>
+                            <div class="day-badge active">Ma: 0.75</div>
+                            <div class="day-badge">Mi</div>
+                            <div class="day-badge">Ju</div>
+                            <div class="day-badge active">Vi: 0.75</div>
+                            <div class="day-badge">Sá</div>
+                            <div class="day-badge">Do</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="beach-card">
+                    <img src="https://imgs.search.brave.com/4GUgWVbCCYMFDgCdtULPzG7w5Spub6ZWms55m3rPKQo/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/bGxhbmVzLmVzL3Np/dGVzL2xsYW5lcy9m/aWxlcy9zdHlsZXMv/aW1hZ2VuX3Jlc3Vs/dGFkb3Nfbm9ybWFs/L3B1YmxpYy9wYWxv/bWJpbmEuanBnP2l0/b2s9eWhYYUV6bEk" alt="Playa de Palombina" class="beach-image">
+                    <div class="beach-info">
+                        <h3>Palombina</h3>
+                        <p class="location">Llanes, Asturias</p>
+                        <div class="week-schedule">
+                            <div class="day-badge">Lu</div>
+                            <div class="day-badge active">Ma: 0.5</div>
+                            <div class="day-badge">Mi</div>
+                            <div class="day-badge">Ju</div>
+                            <div class="day-badge active">Vi: 0.5</div>
+                            <div class="day-badge">Sá</div>
+                            <div class="day-badge">Do</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="beach-card">
+                    <img src="https://imgs.search.brave.com/pJJUwLRL9L7-Gx36JWVKTYB0X7D5sHRwcQVJ9fSKKDA/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90aHVt/YnMuZHJlYW1zdGlt/ZS5jb20vYi9wbGF5/YS11cmJhbmEtZGUt/Y2Vsb3Jpby1sYXMt/Y2FtYXJhcy1wYWxv/bWJpbmEtbGxhbmVz/LWVzcGElQzMlQjFh/LWNvc3RhLXktYWNh/bnRpbGFkb3MtcGFp/c2FqZS1wcm90ZWdp/ZG8tbGEtb3JpZW50/YWwtYXN0dXJpYXMt/ZXVyb3BlLTI0Mjg1/ODkxMy5qcGc" alt="Playa de Las Cámaras" class="beach-image">
+                    <div class="beach-info">
+                        <h3>Las Cámaras</h3>
+                        <p class="location">Llanes, Asturias</p>
+                        <div class="week-schedule">
+                            <div class="day-badge">Lu</div>
+                            <div class="day-badge active">Ma: 0.25</div>
+                            <div class="day-badge">Mi</div>
+                            <div class="day-badge">Ju</div>
+                            <div class="day-badge active">Vi: 0.25</div>
+                            <div class="day-badge">Sá</div>
+                            <div class="day-badge">Do</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="beach-card">
+                    <img src="https://imgs.search.brave.com/_RVEmkl4QRnOrgdfnSx9OkcCANZjtE62_ZIwy9GJfmc/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/dmVycGxheWFzLmNv/bS93cC1jb250ZW50/L3VwbG9hZHMvMjAy/Ni8wMy9wbGF5YS1k/ZS1wb28tMDEtMTAy/NHg1NzguanBn" alt="Playa de Poo" class="beach-image">
+                    <div class="beach-info">
+                        <h3>Poo</h3>
+                        <p class="location">Llanes, Asturias</p>
+                        <div class="week-schedule">
+                            <div class="day-badge">Lu</div>
+                            <div class="day-badge active">Ma: 1.25</div>
+                            <div class="day-badge active">Mi: 1.25</div>
+                            <div class="day-badge">Ju</div>
+                            <div class="day-badge active">Vi: 1.25</div>
+                            <div class="day-badge">Sá</div>
+                            <div class="day-badge">Do</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="beach-card">
+                    <img src="https://imgs.search.brave.com/UAzgcRXx5hIkq6zGTvJDEmErJ2RzZtOY3LGkm9qMr5Q/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS1jZG4udHJpcGFk/dmlzb3IuY29tL21l/ZGlhL3Bob3RvLW8v/MTMvZjkvNmMvNDUv/cGxheWEtZGUtdG9y/by5qcGc" alt="Playa de Toro" class="beach-image">
+                    <div class="beach-info">
+                        <h3>Toro</h3>
+                        <p class="location">Llanes, Asturias</p>
+                        <div class="week-schedule">
+                            <div class="day-badge">Lu</div>
+                            <div class="day-badge active">Ma: 0.5</div>
+                            <div class="day-badge">Mi</div>
+                            <div class="day-badge">Ju</div>
+                            <div class="day-badge active">Vi: 0.5</div>
+                            <div class="day-badge">Sá</div>
+                            <div class="day-badge">Do</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </div>
+
+</body>
+</html>
